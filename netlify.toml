@@ -1,0 +1,22 @@
+[build]
+  command = "bun run build"
+  publish = "dist"
+  base = "."
+
+[dev]
+  command = "bun run dev"
+  port = 5173
+  publish = "dist"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[images]
+  remote_images = [
+    "https://static.vecteezy.com/**",
+    "https://i.etsystatic.com/**",
+    "https://w0.peakpx.com/**",
+    "https://img.freepik.com/**"
+  ]

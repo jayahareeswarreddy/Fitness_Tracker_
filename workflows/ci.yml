@@ -1,0 +1,102 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x, 20.x]
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: FITNESS_SAME/backend/package-lock.json
+    
+    - name: Install backend dependencies
+      run: |
+        cd FITNESS_SAME/backend
+        npm ci
+    
+    - name: Run backend tests
+      run: |
+        cd FITNESS_SAME/backend
+        npm test
+      env:
+        CI: true
+
+  test-frontend:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x, 20.x]
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: FITNESS_SAME/fitness-tracker/package-lock.json
+    
+    - name: Install frontend dependencies
+      run: |
+        cd FITNESS_SAME/fitness-tracker
+        npm ci
+    
+    - name: Run frontend tests
+      run: |
+        cd FITNESS_SAME/fitness-tracker
+        npm test
+      env:
+        CI: true
+    
+    - name: Build frontend
+      run: |
+        cd FITNESS_SAME/fitness-tracker
+        npm run build
+      env:
+        CI: true
+
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: |
+        cd FITNESS_SAME/backend
+        npm ci
+        cd ../fitness-tracker
+        npm ci
+    
+    - name: Lint backend
+      run: |
+        cd FITNESS_SAME/backend
+        npm run lint
+    
+    - name: Lint frontend
+      run: |
+        cd FITNESS_SAME/fitness-tracker
+        npm run lint 
